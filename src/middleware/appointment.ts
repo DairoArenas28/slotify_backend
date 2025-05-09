@@ -1,4 +1,5 @@
-import { Request, Response ,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
+import { Op } from 'sequelize'
 import Appointment from "../models/Appointment";
 import { param, validationResult } from "express-validator";
 
@@ -26,7 +27,7 @@ export const validateAppointmentExists = async (req: Request, res: Response, nex
     try {
         const { appointmentId } = req.params
         const appointment = await Appointment.findByPk(appointmentId)
-        if(!appointment) {
+        if (!appointment) {
             const error = new Error('Cita no encontrada')
             res.status(404).json({ error: error.message })
             return
@@ -38,3 +39,69 @@ export const validateAppointmentExists = async (req: Request, res: Response, nex
         return
     }
 }
+
+
+//Validar que al momento de crear una cita, no se cruce con ningun horario
+//Debo sumarle un minuto al start_time y restarle un minuto al end_time
+export const validateAppointmentConflict = async (req: Request, res: Response, next: NextFunction) => {
+    const { date, start_time, end_time } = req.body;
+
+    if (!date || !start_time || !end_time) {
+        res.status(400).json({ error: 'Missing date, startTime or endTime.' });
+        return
+    }
+    const startOfDay = new Date(date);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    try {
+        const conflictingAppointments = await Appointment.findOne({
+            where: {
+                userId: req.user.id,
+                date: {
+                    [Op.between]: [startOfDay, endOfDay],
+                },
+                [Op.or]: [
+                    {
+                        start_time: {
+                            [Op.between]: [start_time, end_time]
+                        }
+                    },
+                    {
+                        end_time: {
+                            [Op.between]: [start_time, end_time]
+                        }
+                    },
+                    {
+                        [Op.and]: [
+                            { start_time: { [Op.lte]: start_time } },
+                            { end_time: { [Op.gte]: end_time } }
+                        ]
+                    }
+                ]
+            }
+        });
+        //console.log(conflictingAppointments)
+        if (conflictingAppointments) {
+            res.status(409).json({ error: 'This time slot is already taken.' });
+            return;
+        }
+
+        next();
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+};
+/*
+,
+        [Op.and]: [
+          {
+            start_time: {
+              [Op.lt]: end_time
+            },
+            end_time: {
+              [Op.gt]: start_time
+            }
+          }
+        ]
+*/

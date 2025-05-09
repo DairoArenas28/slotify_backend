@@ -2,9 +2,18 @@ import { Router } from "express";
 import { body } from "express-validator";
 import { ServiceController } from "../controllers/ServiceController";
 import { handleInputErrors } from "../middleware/validation";
+import { authenticate } from "../middleware/auth";
+import { validateServiceExists, validateServiceId } from "../middleware/service";
+import { validateAppointmentExists, validateAppointmentId } from "../middleware/appointment";
 
 const router = Router()
 
+router.use(authenticate)
+router.param('serviceId', validateServiceId)
+router.param('serviceId', validateServiceExists)
+
+router.param('appointmentId', validateAppointmentId)
+router.param('appointmentId', validateAppointmentExists)
 //Enpoint para servicios
 //Obtener todos los servicios
 router.get('/', 
