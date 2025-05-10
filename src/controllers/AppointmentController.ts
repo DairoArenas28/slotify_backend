@@ -6,8 +6,8 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
-const START_HOUR = 1;
-const END_HOUR = 22; // 6 PM
+const START_HOUR = 1
+const END_HOUR = 22
 
 export class AppointmentController {
 
@@ -70,42 +70,52 @@ export class AppointmentController {
     static getAvailableHours = async (req: Request, res: Response) => {
         try {
             const { date } = req.params;
-
             const parsedDate = dayjs(date, 'YYYY-MM-DD', true);
+            
             if (!parsedDate.isValid()) {
                 res.status(400).json({ error: 'Invalid date format (expected YYYY-MM-DD)' });
-                return
+                return;
             }
-
+    
             const startOfDay = new Date(date);
             const endOfDay = new Date(date);
             endOfDay.setHours(23, 59, 59, 999);
-            // Obtener todas las citas existentes para ese día
+    
+            // Obtener todas las citas existentes para ese día, incluyendo start_time y end_time
             const appointments = await Appointment.findAll({
                 where: {
                     date: {
                         [Op.between]: [startOfDay, endOfDay]
                     }
                 },
-                attributes: ['start_time'] // solo necesitamos esto
+                attributes: ['start_time', 'end_time'] // Obtener ambos campos
             });
-
-            console.log(appointments)
-            const reservedHours = appointments.map(a => dayjs(a.start_time, 'HH:mm:ss').hour());
-            console.log(reservedHours)
+    
+            const occupiedHours = [];
+            // Iterar sobre las citas para obtener los rangos de tiempo ocupados
+            appointments.forEach(a => {
+                const startHour = dayjs(a.start_time, 'HH:mm:ss').hour();
+                const endHour = dayjs(a.end_time, 'HH:mm:ss').hour();
+                
+                // Marcar las horas entre startHour y endHour como ocupadas
+                for (let hour = startHour; hour < endHour; hour++) {
+                    occupiedHours.push(hour);
+                }
+            });
+    
             // Generar todas las horas posibles (7 AM a 6 PM)
             const allHours = [];
             for (let hour = START_HOUR; hour < END_HOUR; hour++) {
-                if (!reservedHours.includes(hour)) {
+                if (!occupiedHours.includes(hour)) {
                     allHours.push(dayjs().hour(hour).minute(0).format('hh:00 A'));
                 }
             }
-
+    
             res.json(allHours);
-            return
+            return;
         } catch (error) {
             res.status(500).json({ error: 'Error getting available hours.' });
-            return
+            return;
         }
     };
 
