@@ -2,6 +2,7 @@ import colors from 'colors'
 import express from 'express'
 import authRouter from './routes/authRouter'
 import { db } from './config/db'
+import adminRouter from './routes/adminRouter'
 import appointmentRouter from './routes/appointmentRouter'
 import serviceRouter from './routes/serviceRouter'
 
@@ -21,8 +22,9 @@ const app = express()
 
 app.use(express.json());
 
-app.use('/api/auth',authRouter)
-app.use('/api/appointment',appointmentRouter)
+app.use('/api/admin', adminRouter )
+app.use('/api/auth', authRouter)
+app.use('/api/appointment', appointmentRouter)
 app.use('api/services', serviceRouter)
 
 export default app

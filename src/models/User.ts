@@ -1,5 +1,5 @@
 
-import {Table, Column, Model, DataType, HasMany, Default, Unique, AllowNull} from 'sequelize-typescript'
+import { Table, Column, Model, DataType, HasMany, Default, Unique, AllowNull } from 'sequelize-typescript'
 import Appointment from './Appointment'
 
 @Table({
@@ -7,19 +7,26 @@ import Appointment from './Appointment'
 })
 
 class User extends Model {
+
+	@AllowNull(false)
+	@Column({
+		type: DataType.STRING(20)
+	})
+	declare documento: string
+
 	@AllowNull(false)
 	@Column({
 		type: DataType.STRING(100)
 
 	})
-	declare  name: string
+	declare name: string
 
 	@Unique(true)
 	@AllowNull(false)
 	@Column({
 		type: DataType.STRING(50)
 	})
-	declare email : string
+	declare email: string
 
 	@AllowNull(false)
 	@Column({
@@ -28,15 +35,28 @@ class User extends Model {
 	declare password: string
 
 	@Column({
-        type: DataType.STRING(6)
-    })
-    declare token: string
+		type: DataType.STRING(6)
+	})
+	declare token: string
 
-    @Default(false)
-    @Column({
-        type: DataType.BOOLEAN
-    })
-    declare confirmed: boolean
+	@Default(false)
+	@Column({
+		type: DataType.BOOLEAN
+	})
+	declare confirmed: boolean
+
+	@AllowNull(false)
+	@Column({
+		type: DataType.ENUM('admin', 'client'),
+		defaultValue: 'client'
+	})
+	declare role: 'admin' | 'client'
+
+	@AllowNull(true)
+	@Column({
+		type: DataType.STRING
+	})
+	declare data: string
 
 	@Column({
 		type: DataType.BOOLEAN,
@@ -44,11 +64,11 @@ class User extends Model {
 	})
 	declare is_active: boolean
 
-	@HasMany( ( ) => Appointment  , {
+	@HasMany(() => Appointment, {
 		onUpdate: 'CASCADE',
 		onDelete: 'CASCADE'
 	})
-	declare appointments: Appointment []
+	declare appointments: Appointment[]
 }
 
 export default User
