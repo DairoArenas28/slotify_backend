@@ -8,7 +8,7 @@ import User from './User'
   class Appointment extends Model {
     @AllowNull(false)
     @Column({
-      type: DataType.DATE
+      type: DataType.DATEONLY
     })
     declare date: Date;
   

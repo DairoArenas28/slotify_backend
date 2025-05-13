@@ -44,6 +44,26 @@ export class AppointmentController {
 
     }
 
+    static getByStatus = async (req: Request, res: Response) => {
+        const { status } = req.params
+        try {
+            const appointment = await Appointment.findAll({
+                order: [
+                    ['createdAt', 'DESC']
+                ],
+                where: {
+                    userId: req.user.id,
+                    status: status
+                }
+            })
+
+            res.json(appointment)
+        } catch (error) {
+            res.status(500).json({ error: error.message })
+        }
+
+    }
+
     static getById = async (req: Request, res: Response) => {
         const appointment = await Appointment.findByPk(req.appointment.id, {
             include: [Service]

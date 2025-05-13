@@ -29,6 +29,11 @@ router.get('/user',
     AppointmentController.getUserAll
 )
 
+//Obtener un appointment con un estado
+router.get('/status/:status', 
+    AppointmentController.getByStatus
+)
+
 //Obtener un appointment con el id
 router.get('/id/:appointmentId', 
     AppointmentController.getById
