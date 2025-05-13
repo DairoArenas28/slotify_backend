@@ -16,6 +16,21 @@ export class AppointmentController {
             const appointment = await Appointment.findAll({
                 order: [
                     ['createdAt', 'DESC']
+                ]
+            })
+
+            res.json(appointment)
+        } catch (error) {
+            res.status(500).json({ error: error.message })
+        }
+
+    }
+
+    static getUserAll = async (req: Request, res: Response) => {
+        try {
+            const appointment = await Appointment.findAll({
+                order: [
+                    ['createdAt', 'DESC']
                 ],
                 where: {
                     userId: req.user.id

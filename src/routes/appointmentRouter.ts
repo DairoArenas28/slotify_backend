@@ -2,7 +2,7 @@ import { Router } from "express";
 import { validateServiceExists, validateServiceId } from "../middleware/service";
 import { AppointmentController } from "../controllers/AppointmentController";
 import { authenticate } from "../middleware/auth";
-import { validateAppointmentConflict, validateAppointmentExists, validateAppointmentId } from "../middleware/appointment";
+import { validateAppointmentConflict, validateAppointmentDate, validateAppointmentExists, validateAppointmentId } from "../middleware/appointment";
 import { param } from "express-validator";
 import { handleInputErrors } from "../middleware/validation";
 
@@ -15,12 +15,18 @@ router.param('serviceId', validateServiceExists)
 router.param('appointmentId', validateAppointmentId)
 router.param('appointmentId', validateAppointmentExists)
 
+router.param('date', validateAppointmentDate)
+
 
 //Enpoint para appointment
 
-//Obtener todos los appointment segun el usuario ingresado en el sistema
+//
 router.get('/',
     AppointmentController.getAll
+)
+//Obtener todos los appointment segun el usuario ingresado en el sistema
+router.get('/user',
+    AppointmentController.getUserAll
 )
 
 //Obtener un appointment con el id
@@ -30,13 +36,11 @@ router.get('/id/:appointmentId',
 
 //Obtener appointment segun la fecha
 router.get('/date/:date',
-    param('date').isDate().withMessage('Fecha no válida'),
-    handleInputErrors,
     AppointmentController.getByDate
 )
 
+//Validar disponibilidad
 router.get('/available-hours/:date', 
-    param('date').isDate().withMessage('Fecha no válida'),
     AppointmentController.getAvailableHours
 );
 

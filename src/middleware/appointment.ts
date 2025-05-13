@@ -22,6 +22,17 @@ export const validateAppointmentId = async (req: Request, res: Response, next: N
     next()
 }
 
+//Validar el parametro fecha al recibir una peticion
+export const validateAppointmentDate = async (req: Request, res: Response, next: NextFunction) => {
+    await param('date').isDate().withMessage('Fecha no válida').bail().run(req)
+    let errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() })
+        return
+    }
+    next()
+}
+
 //validar si un servicio existe al momento de pasar el parametro a la API
 export const validateAppointmentExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
