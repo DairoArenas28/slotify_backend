@@ -12,8 +12,6 @@ router.use(authenticate)
 router.param('serviceId', validateServiceId)
 router.param('serviceId', validateServiceExists)
 
-router.param('appointmentId', validateAppointmentId)
-router.param('appointmentId', validateAppointmentExists)
 //Enpoint para servicios
 //Obtener todos los servicios
 router.get('/', 

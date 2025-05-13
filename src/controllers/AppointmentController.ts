@@ -4,10 +4,17 @@ import { Op } from 'sequelize';
 import Service from "../models/Services"
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import User from "../models/User";
 dayjs.extend(customParseFormat);
 
 const START_HOUR = 1
 const END_HOUR = 22
+
+type CalendarEvent = {
+    title: string;
+    start: string;
+    end: string;
+};
 
 export class AppointmentController {
 
@@ -28,6 +35,34 @@ export class AppointmentController {
         }
 
     }
+
+    static getByCalendar = async (req: Request, res: Response) => {
+
+        try {
+            const appointments: Appointment[] = await Appointment.findAll({
+                order: [['createdAt', 'DESC']],
+                where: {
+                    userId: req.user.id,
+                    status: 'reservado'
+                },
+                include: [User]
+            });
+
+            const calendarEvents: CalendarEvent[] = appointments.map(appointment => {
+                const dateStr = appointment.date.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+                return {
+                    title: appointment.user.name,
+                    start: `${dateStr}T${appointment.start_time}`, // Ej: "2025-05-13T14:00:00"
+                    end: `${dateStr}T${appointment.end_time}`
+                };
+            });
+
+            res.json(calendarEvents);
+        } catch (error: any) {
+            res.status(500).json({ error: error.message });
+        }
+    };
 
     static getByStatus = async (req: Request, res: Response) => {
         const { status } = req.params
@@ -91,16 +126,16 @@ export class AppointmentController {
         try {
             const { date } = req.params;
             const parsedDate = dayjs(date, 'YYYY-MM-DD', true);
-            
+
             if (!parsedDate.isValid()) {
                 res.status(400).json({ error: 'Invalid date format (expected YYYY-MM-DD)' });
                 return;
             }
-    
+
             const startOfDay = new Date(date);
             const endOfDay = new Date(date);
             endOfDay.setHours(23, 59, 59, 999);
-    
+
             // Obtener todas las citas existentes para ese día, incluyendo start_time y end_time
             const appointments = await Appointment.findAll({
                 where: {
@@ -110,19 +145,19 @@ export class AppointmentController {
                 },
                 attributes: ['start_time', 'end_time'] // Obtener ambos campos
             });
-    
+
             const occupiedHours = [];
             // Iterar sobre las citas para obtener los rangos de tiempo ocupados
             appointments.forEach(a => {
                 const startHour = dayjs(a.start_time, 'HH:mm:ss').hour();
                 const endHour = dayjs(a.end_time, 'HH:mm:ss').hour();
-                
+
                 // Marcar las horas entre startHour y endHour como ocupadas
                 for (let hour = startHour; hour < endHour; hour++) {
                     occupiedHours.push(hour);
                 }
             });
-    
+
             // Generar todas las horas posibles (7 AM a 6 PM)
             const allHours = [];
             for (let hour = START_HOUR; hour < END_HOUR; hour++) {
@@ -130,7 +165,7 @@ export class AppointmentController {
                     allHours.push(dayjs().hour(hour).minute(0).format('hh:00 A'));
                 }
             }
-    
+
             res.json(allHours);
             return;
         } catch (error) {

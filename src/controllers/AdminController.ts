@@ -4,9 +4,15 @@ import User from "../models/User"
 import Appointment from "../models/Appointment"
 import Service from "../models/Services"
 
+type CalendarEvent = {
+    title: string;
+    start: string;
+    end: string;
+};
+
 export class AdminController {
     //Obtener todos los usuarios
-    static getUserByCLient = async (req: Request, res: Response) => {
+    static getUserByClient = async (req: Request, res: Response) => {
         try {
             const users = await User.findAll({
                 order: [
@@ -39,6 +45,33 @@ export class AdminController {
             res.status(500).json({ error: error.message })
         }
     }
+
+    static getByCalendar = async (req: Request, res: Response) => {
+
+        try {
+            const appointments: Appointment[] = await Appointment.findAll({
+                order: [['createdAt', 'DESC']],
+                where: {
+                    status: 'reservado'
+                },
+                include: [User]
+            });
+
+            const calendarEvents: CalendarEvent[] = appointments.map(appointment => {
+                const dateStr = appointment.date.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+                return {
+                    title: appointment.user.name,
+                    start: `${dateStr}T${appointment.start_time}`, // Ej: "2025-05-13T14:00:00"
+                    end: `${dateStr}T${appointment.end_time}`
+                };
+            });
+
+            res.json(calendarEvents);
+        } catch (error: any) {
+            res.status(500).json({ error: error.message });
+        }
+    };
 
     // 
     static getFinanceData = async (req: Request, res: Response) => {

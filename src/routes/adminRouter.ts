@@ -7,10 +7,14 @@ const router = Router()
 router.use(authenticate)
 
 router.get('/user',
-    AdminController.getUserByCLient
+    AdminController.getUserByClient
 )
 
 router.get('/appointment',
+    AdminController.getAppointment
+)
+
+router.get('/calendar',
     AdminController.getAppointment
 )
 

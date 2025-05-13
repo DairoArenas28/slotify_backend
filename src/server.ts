@@ -25,6 +25,6 @@ app.use(express.json());
 app.use('/api/admin', adminRouter )
 app.use('/api/auth', authRouter)
 app.use('/api/appointment', appointmentRouter)
-app.use('api/services', serviceRouter)
+app.use('/api/services', serviceRouter)
 
 export default app

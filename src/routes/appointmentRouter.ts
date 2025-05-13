@@ -24,6 +24,11 @@ router.get('/',
 )
 
 //Obtener un appointment con un estado
+router.get('/calendar', 
+    AppointmentController.getByCalendar
+)
+
+//Obtener un appointment con un estado
 router.get('/status/:status', 
     AppointmentController.getByStatus
 )
