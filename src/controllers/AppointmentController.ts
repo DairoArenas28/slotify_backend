@@ -140,6 +140,7 @@ export class AppointmentController {
     static getAvailableHours = async (req: Request, res: Response) => {
         try {
             const { date } = req.params;
+            const [year, month, day] = date.split('-').map(Number)
             const parsedDate = dayjs(date, 'YYYY-MM-DD', true);
 
             if (!parsedDate.isValid()) {
@@ -147,15 +148,20 @@ export class AppointmentController {
                 return;
             }
 
-            const startOfDay = new Date(date);
-            const endOfDay = new Date(date);
-            endOfDay.setHours(23, 59, 59, 999);
+            // 👇 Esto crea la fecha a medianoche LOCAL
+            const localDate = new Date(year, month - 1, day);
+
+            const start = new Date(localDate);
+            start.setHours(0, 0, 0, 0);
+
+            const end = new Date(localDate);
+            end.setHours(23, 59, 59, 999);
 
             // Obtener todas las citas existentes para ese día, incluyendo start_time y end_time
             const appointments = await Appointment.findAll({
                 where: {
                     date: {
-                        [Op.between]: [startOfDay, endOfDay]
+                        [Op.between]: [start, end]
                     }
                 },
                 attributes: ['start_time', 'end_time'] // Obtener ambos campos
