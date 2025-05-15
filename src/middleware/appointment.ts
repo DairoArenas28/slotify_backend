@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { Op } from 'sequelize'
 import Appointment from "../models/Appointment";
 import { param, validationResult } from "express-validator";
+import { addMinutes } from "../utils/date";
 
 declare global {
     namespace Express {
@@ -55,22 +56,30 @@ export const validateAppointmentExists = async (req: Request, res: Response, nex
 //Validar que al momento de crear una cita, no se cruce con ningun horario
 //Debo sumarle un minuto al start_time y restarle un minuto al end_time
 export const validateAppointmentConflict = async (req: Request, res: Response, next: NextFunction) => {
-    const { date, start_time, end_time } = req.body;
+    const { id: serviceId, name, duration_minutes } = req.service
+    const { date, start_time } = req.body;
+    const [year, month, day] = date.split('-').map(Number)
+    const end_time = addMinutes(start_time,duration_minutes)
 
-    if (!date || !start_time || !end_time) {
+    if (!date || !start_time) {
         res.status(400).json({ error: 'Missing date, startTime or endTime.' });
         return
     }
-    const startOfDay = new Date(date);
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    // 👇 Esto crea la fecha a medianoche LOCAL
+    const localDate = new Date(year, month - 1, day);
+
+    const start = new Date(localDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(localDate);
+    end.setHours(23, 59, 59, 999);
 
     try {
         const conflictingAppointments = await Appointment.findOne({
             where: {
                 userId: req.user.id,
                 date: {
-                    [Op.between]: [startOfDay, endOfDay],
+                    [Op.between]: [start, end],
                 },
                 [Op.or]: [
                     {
@@ -94,7 +103,7 @@ export const validateAppointmentConflict = async (req: Request, res: Response, n
         });
         //console.log(conflictingAppointments)
         if (conflictingAppointments) {
-            res.status(409).json({ error: 'This time slot is already taken.' });
+            res.status(409).json({ error: 'Este horario ya está ocupado.' });
             return;
         }
 

@@ -5,6 +5,7 @@ import Service from "../models/Services"
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import User from "../models/User";
+import { addMinutes } from "../utils/date";
 dayjs.extend(customParseFormat);
 
 const START_HOUR = 1
@@ -196,10 +197,12 @@ export class AppointmentController {
     };
 
     static create = async (req: Request, res: Response) => {
-        const { serviceId } = req.params
-        const { date, start_time, end_time } = req.body;
+        const { id: serviceId, name, duration_minutes } = req.service
+        const { date, start_time } = req.body;
         const { id: userId } = req.user
+        const end_time = addMinutes(start_time,duration_minutes)
         try {
+
             const appointment = await Appointment.create({
                 serviceId: parseInt(serviceId),
                 userId,
@@ -208,7 +211,7 @@ export class AppointmentController {
                 end_time,
                 status: 'reservado'
             });
-
+            await appointment.save()
             res.status(201).json('Agenda creada correctamente')
         } catch (error) {
             res.status(500).json({ message: 'Error al agendar la cita', error });
