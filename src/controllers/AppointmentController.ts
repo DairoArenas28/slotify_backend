@@ -61,14 +61,15 @@ export class AppointmentController {
                     userId: req.user.id,
                     status: 'reservado'
                 },
-                include: [User]
+                include: [User, Service]
             });
 
             const calendarEvents: CalendarEvent[] = appointments.map(appointment => {
                 const dateStr = appointment.date.toISOString().split('T')[0]; // "YYYY-MM-DD"
 
                 return {
-                    title: appointment.user.name,
+                    id: appointment.id,
+                    title: `${appointment.user?.name ?? 'Sin usuario'} \n ${appointment.service?.name ?? 'Sin servicio'} \n ${+appointment.service?.price}`,
                     start: `${dateStr}T${appointment.start_time}`, // Ej: "2025-05-13T14:00:00"
                     end: `${dateStr}T${appointment.end_time}`
                 };
@@ -110,7 +111,7 @@ export class AppointmentController {
 
     static getByDate = async (req: Request, res: Response) => {
         const { date } = req.params
-        console.log(date)
+        //console.log(date)
         try {
             // Validar formato de fecha (ej. "2025-05-09")
             if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
