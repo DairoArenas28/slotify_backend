@@ -201,7 +201,7 @@ export class AppointmentController {
         const { id: serviceId, name, duration_minutes } = req.service
         const { date, start_time } = req.body;
         const { id: userId } = req.user
-        const end_time = addMinutes(start_time,duration_minutes)
+        const end_time = addMinutes(start_time, duration_minutes)
         try {
 
             const appointment = await Appointment.create({
@@ -221,13 +221,26 @@ export class AppointmentController {
 
     static updateById = async (req: Request, res: Response) => {
         try {
-            await req.appointment.update(req.body)
-            res.json('Cita actualizado correctamente')
+            const { id } = req.params;
+            const { start_time, } = req.body;
+            const { serviceId } = req.body
 
+            // Calcula la hora de finalización
+            const service = await Service.findByPk(serviceId)
+            const end_time = addMinutes(start_time, service.duration_minutes);
+            console.log('service id: ',serviceId)
+            // Actualiza la cita
+            await req.appointment.update(
+                { ...req.body, end_time },
+                { where: { id } }
+            );
+
+            res.json('Cita actualizada correctamente');
         } catch (error) {
-            res.status(500).json({ error: 'Hubo un error' })
+            console.error(error);
+            res.status(500).json({ error: 'Hubo un error al actualizar la cita' });
         }
-    }
+    };
 
     static deleteById = async (req: Request, res: Response) => {
         try {
