@@ -245,7 +245,7 @@ export class AppointmentController {
     static deleteById = async (req: Request, res: Response) => {
         try {
             await req.appointment.destroy()
-            res.json('Cata eliminada correctamente')
+            res.json('Cita eliminada correctamente')
 
         } catch (error) {
             res.status(500).json({ error: 'Hubo un error' })

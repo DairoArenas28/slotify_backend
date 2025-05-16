@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { Op } from 'sequelize'
 import Appointment from "../models/Appointment";
 import { param, validationResult } from "express-validator";
-import { addMinutes } from "../utils/date";
+import { addMinutes, subMinutes } from "../utils/date";
 
 declare global {
     namespace Express {
@@ -74,6 +74,10 @@ export const validateAppointmentConflict = async (req: Request, res: Response, n
     const end = new Date(localDate);
     end.setHours(23, 59, 59, 999);
 
+    
+    const adjustedStartTime = addMinutes(start_time, 1) 
+    const adjustedEndTime = subMinutes(end_time, 1)
+
     try {
         const conflictingAppointments = await Appointment.findOne({
             where: {
@@ -84,18 +88,18 @@ export const validateAppointmentConflict = async (req: Request, res: Response, n
                 [Op.or]: [
                     {
                         start_time: {
-                            [Op.between]: [start_time, end_time]
+                            [Op.between]: [adjustedStartTime, adjustedEndTime]
                         }
                     },
                     {
                         end_time: {
-                            [Op.between]: [start_time, end_time]
+                            [Op.between]: [adjustedStartTime, adjustedEndTime]
                         }
                     },
                     {
                         [Op.and]: [
-                            { start_time: { [Op.lte]: start_time } },
-                            { end_time: { [Op.gte]: end_time } }
+                            { start_time: { [Op.lte]: adjustedStartTime } },
+                            { end_time: { [Op.gte]: adjustedEndTime } }
                         ]
                     }
                 ]

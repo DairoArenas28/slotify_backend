@@ -62,6 +62,7 @@ router.post('/:serviceId',
 
 //Editar una cita 
 router.put('/:appointmentId', 
+    validateAppointmentConflict,
     AppointmentController.updateById
 )
 
