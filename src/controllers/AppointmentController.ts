@@ -8,8 +8,8 @@ import User from "../models/User";
 import { addMinutes } from "../utils/date";
 dayjs.extend(customParseFormat);
 
-const START_HOUR = 1
-const END_HOUR = 22
+const START_HOUR = 6
+const END_HOUR = 24
 
 type CalendarEvent = {
     title: string;
@@ -53,13 +53,13 @@ export class AppointmentController {
     }
 
     static getByCalendar = async (req: Request, res: Response) => {
-
+        const { status } = req.params
         try {
             const appointments: Appointment[] = await Appointment.findAll({
                 order: [['createdAt', 'DESC']],
                 where: {
                     userId: req.user.id,
-                    status: 'reservado'
+                    status: status
                 },
                 include: [User, Service]
             });

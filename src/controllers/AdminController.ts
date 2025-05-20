@@ -100,6 +100,7 @@ export class AdminController {
         }
 
         try {
+            console.log(startDate, endDate)
             // Traer citas completadas en el rango
             const appointments = await Appointment.findAll({
                 where: {

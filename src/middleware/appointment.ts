@@ -57,7 +57,7 @@ export const validateAppointmentExists = async (req: Request, res: Response, nex
 //Debo sumarle un minuto al start_time y restarle un minuto al end_time
 export const validateAppointmentConflict = async (req: Request, res: Response, next: NextFunction) => {
     const { id: serviceId, name, duration_minutes } = req.service
-    const { date, start_time } = req.body;
+    const { date, start_time, service } = req.body;
     const [year, month, day] = date.split('-').map(Number)
     const end_time = addMinutes(start_time,duration_minutes)
 

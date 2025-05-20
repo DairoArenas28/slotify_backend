@@ -3,8 +3,6 @@ import { validateServiceExists, validateServiceId } from "../middleware/service"
 import { AppointmentController } from "../controllers/AppointmentController";
 import { authenticate } from "../middleware/auth";
 import { validateAppointmentConflict, validateAppointmentDate, validateAppointmentExists, validateAppointmentId } from "../middleware/appointment";
-import { param } from "express-validator";
-import { handleInputErrors } from "../middleware/validation";
 
 const router = Router()
 
@@ -30,7 +28,7 @@ router.get('/user',
 )
 
 //Obtener un appointment con un estado
-router.get('/calendar', 
+router.get('/calendar/:status', 
     AppointmentController.getByCalendar
 )
 
