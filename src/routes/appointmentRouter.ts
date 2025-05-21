@@ -59,7 +59,7 @@ router.post('/:serviceId',
 )
 
 //Editar una cita 
-router.put('/:appointmentId', 
+router.put('/:appointmentId/service/:serviceId', 
     validateAppointmentConflict,
     AppointmentController.updateById
 )
