@@ -71,7 +71,8 @@ export class AppointmentController {
                     id: appointment.id,
                     title: `${appointment.user?.name ?? 'Sin usuario'} \n ${appointment.service?.name ?? 'Sin servicio'} \n ${+appointment.service?.price}`,
                     start: `${dateStr}T${appointment.start_time}`, // Ej: "2025-05-13T14:00:00"
-                    end: `${dateStr}T${appointment.end_time}`
+                    end: `${dateStr}T${appointment.end_time}`,
+                    status: appointment.status
                 };
             });
 

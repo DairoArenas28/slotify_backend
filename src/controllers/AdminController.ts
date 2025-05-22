@@ -100,7 +100,7 @@ export class AdminController {
         }
 
         try {
-            console.log(startDate, endDate)
+            //console.log(startDate, endDate)
             // Traer citas completadas en el rango
             const appointments = await Appointment.findAll({
                 where: {
@@ -140,7 +140,9 @@ export class AdminController {
 
             for (const appt of appointments) {
                 const label = formatter.format(new Date(appt.date));
-                chartData[label] = (chartData[label] || 0) + Number(appt.service?.price || 0);
+                const currentSum = chartData[label] || 0;
+                const price = Number(appt.service?.price || 0);
+                chartData[label] = Number((currentSum + price).toFixed(2));
             }
 
             const chartArray = Object.entries(chartData).map(([label, amount]) => ({ label, amount }));
