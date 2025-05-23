@@ -143,7 +143,6 @@ export class AppointmentController {
     static getAvailableHours = async (req: Request, res: Response) => {
         try {
             const { date } = req.params;
-            const [year, month, day] = date.split('-').map(Number)
             const parsedDate = dayjs(date, 'YYYY-MM-DD', true);
 
             if (!parsedDate.isValid()) {
@@ -151,50 +150,42 @@ export class AppointmentController {
                 return;
             }
 
-            // 👇 Esto crea la fecha a medianoche LOCAL
-            const localDate = new Date(year, month - 1, day);
+            const startOfDay = parsedDate.startOf('day');
+            const endOfDay = parsedDate.endOf('day');
 
-            const start = new Date(localDate);
-            start.setHours(0, 0, 0, 0);
-
-            const end = new Date(localDate);
-            end.setHours(23, 59, 59, 999);
-
-            // Obtener todas las citas existentes para ese día, incluyendo start_time y end_time
+            // Obtener todas las citas existentes para ese día
             const appointments = await Appointment.findAll({
                 where: {
                     date: {
-                        [Op.between]: [start, end]
+                        [Op.between]: [startOfDay.toDate(), endOfDay.toDate()]
                     }
                 },
-                attributes: ['start_time', 'end_time'] // Obtener ambos campos
+                attributes: ['start_time', 'end_time']
             });
 
-            const occupiedHours = [];
-            // Iterar sobre las citas para obtener los rangos de tiempo ocupados
-            appointments.forEach(a => {
-                const startHour = dayjs(a.start_time, 'HH:mm:ss').hour();
-                const endHour = dayjs(a.end_time, 'HH:mm:ss').hour();
+            const occupiedMinutes: number[] = [];
 
-                // Marcar las horas entre startHour y endHour como ocupadas
-                for (let hour = startHour; hour < endHour; hour++) {
-                    occupiedHours.push(hour);
+            appointments.forEach(appointment => {
+                const startTime = dayjs(appointment.start_time, 'HH:mm:ss');
+                const endTime = dayjs(appointment.end_time, 'HH:mm:ss');
+
+                let currentMinute = startTime;
+                while (currentMinute.isBefore(endTime)) {
+                    occupiedMinutes.push(currentMinute.hour() * 60 + currentMinute.minute());
+                    currentMinute = currentMinute.add(1, 'minute');
                 }
             });
 
-            // Generar todas las horas posibles (7 AM a 6 PM)
-            const allHours = [];
-            for (let hour = START_HOUR; hour < END_HOUR; hour++) {
-                if (!occupiedHours.includes(hour)) {
-                    allHours.push(dayjs().hour(hour).minute(0).format('hh:00 A'));
-                }
+        const allAvailableHours: string[] = [];
+        for (let hour = START_HOUR; hour < END_HOUR; hour++) {
+            const totalMinutes = hour * 60;
+            if (!occupiedMinutes.includes(totalMinutes)) {
+                allAvailableHours.push(dayjs().hour(hour).minute(0).format('hh:mm A'));
             }
-
-            res.json(allHours);
-            return;
+        }
+            res.json(allAvailableHours);
         } catch (error) {
             res.status(500).json({ error: 'Error getting available hours.' });
-            return;
         }
     };
 
@@ -229,7 +220,7 @@ export class AppointmentController {
             // Calcula la hora de finalización
             const service = await Service.findByPk(serviceId)
             const end_time = addMinutes(start_time, service.duration_minutes);
-            console.log('service id: ',serviceId)
+            //console.log('service id: ',serviceId)
             // Actualiza la cita
             await req.appointment.update(
                 { ...req.body, end_time },
