@@ -65,7 +65,7 @@ export class AppointmentController {
             });
 
             const calendarEvents: CalendarEvent[] = appointments.map(appointment => {
-                const dateStr = appointment.date.toISOString().split('T')[0]; // "YYYY-MM-DD"
+                const dateStr = new Date(appointment.date).toISOString().split('T')[0];
 
                 return {
                     id: appointment.id,

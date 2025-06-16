@@ -8,7 +8,7 @@ import Appointment from './Appointment'
 
 class User extends Model {
 
-	@AllowNull(false)
+	@AllowNull(true)
 	@Column({
 		type: DataType.STRING(20)
 	})
@@ -45,7 +45,7 @@ class User extends Model {
 	})
 	declare confirmed: boolean
 
-	@AllowNull(false)
+	@AllowNull(true)
 	@Column({
 		type: DataType.ENUM('admin', 'client'),
 		defaultValue: 'client'
