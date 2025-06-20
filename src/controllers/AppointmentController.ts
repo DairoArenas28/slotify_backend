@@ -190,7 +190,7 @@ export class AppointmentController {
     };
 
     static create = async (req: Request, res: Response) => {
-        const { id: serviceId, name, duration_minutes } = req.service
+        const { id: serviceId, duration_minutes } = req.service
         const { date, start_time } = req.body;
         const { id: userId } = req.user
         const end_time = addMinutes(start_time, duration_minutes)
@@ -216,7 +216,7 @@ export class AppointmentController {
             const { id } = req.params;
             const { start_time, } = req.body;
             const { serviceId } = req.body
-
+            console.log(req.body)
             // Calcula la hora de finalización
             const service = await Service.findByPk(serviceId)
             const end_time = addMinutes(start_time, service.duration_minutes);

@@ -39,7 +39,8 @@ export class AuthController {
             res.status(201).json('Cuenta creada correctamente')
         } catch (error) {
             //console.log(error)
-            res.status(500).json({ error: error.message })
+            res.status(500).json(`${error} error al enviar el correo`)
+            //res.status(500).json({ error: error.message })
         }
 
     }
