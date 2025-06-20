@@ -42,7 +42,8 @@ export class AppointmentController {
                 ],
                 where: {
                     userId: req.user.id
-                }
+                },
+                include: [Service]
             })
 
             res.json(appointment)
