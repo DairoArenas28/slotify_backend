@@ -86,9 +86,9 @@ export class AdminController {
         let endDate: Date;
 
         if (type === 'day') {
-            startDate = new Date(date as string);
-            endDate = new Date(date as string);
-            endDate.setDate(endDate.getDate() + 1);
+            const [year, month, day] = (date as string).split('-').map(Number);
+            startDate = new Date(year, month - 1, day, 0, 0, 0); // 00:00:00 local
+            endDate = new Date(year, month - 1, day + 1, 0, 0, 0); // siguiente día 00:00:00 local
         } else if (type === 'month') {
             const [year, month] = (date as string).split('-').map(Number);
             startDate = new Date(year, month - 1, 1);
