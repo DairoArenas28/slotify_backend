@@ -76,7 +76,7 @@ export class AdminController {
     // 
     static getFinanceData = async (req: Request, res: Response) => {
         const { type, date } = req.query;
-
+        console.log(type)
         if (!type || !date) {
             res.status(400).json({ message: 'type and date required' });
             return
