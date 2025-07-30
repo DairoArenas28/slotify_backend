@@ -36,15 +36,18 @@ export class AppointmentController {
 
     static getUserAll = async (req: Request, res: Response) => {
         try {
+            let whereOptions = undefined
+            if(req.user.role === "client"){
+                whereOptions = { userId: req.user.id };
+            }
             const appointment = await Appointment.findAll({
                 order: [
                     ['createdAt', 'DESC']
                 ],
-                where: {
-                    userId: req.user.id
-                },
+                where: whereOptions,
                 include: [Service]
             })
+            //console.log(appointment)
 
             res.json(appointment)
         } catch (error) {
@@ -56,13 +59,17 @@ export class AppointmentController {
     static getByCalendar = async (req: Request, res: Response) => {
         const { status } = req.params
         try {
+            const isClient = req.user.role === 'client';
+
+            const whereClause: any = {
+                status,
+                ...(isClient && { userId: req.user.id }), // solo agrega userId si es client
+            };
+
             const appointments: Appointment[] = await Appointment.findAll({
                 order: [['createdAt', 'DESC']],
-                where: {
-                    userId: req.user.id,
-                    status: status
-                },
-                include: [User, Service]
+                where: whereClause,
+                include: [User, Service],
             });
 
             const calendarEvents: CalendarEvent[] = appointments.map(appointment => {
@@ -217,7 +224,7 @@ export class AppointmentController {
             const { id } = req.params;
             const { start_time, } = req.body;
             const { serviceId } = req.body
-            console.log(req.body)
+            //console.log(req.body)
             // Calcula la hora de finalización
             const service = await Service.findByPk(serviceId)
             const end_time = addMinutes(start_time, service.duration_minutes);

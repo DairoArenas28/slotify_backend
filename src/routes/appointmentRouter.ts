@@ -22,7 +22,7 @@ router.param('date', validateAppointmentDate)
 router.get('/',
     AppointmentController.getAll
 )
-//Obtener todos los appointment segun el usuario ingresado en el sistema
+//Obtener todos los appointment segun el usuario ingresado en el sistema, tambien dependerá de su rol
 router.get('/user',
     AppointmentController.getUserAll
 )

@@ -76,7 +76,7 @@ export class AdminController {
     // 
     static getFinanceData = async (req: Request, res: Response) => {
         const { type, date } = req.query;
-        console.log(type)
+        //console.log(type)
         if (!type || !date) {
             res.status(400).json({ message: 'type and date required' });
             return
@@ -114,7 +114,7 @@ export class AdminController {
                 raw: true,
                 nest: true
             });
-
+            //console.log(appointments)
             const completedAppointments = appointments.length;
 
             // Calcular total ganancias
@@ -139,7 +139,10 @@ export class AdminController {
             });
 
             for (const appt of appointments) {
-                const label = formatter.format(new Date(appt.date));
+                //console.log(appt.date)
+                const [year, month, day] = appt.date.toString().split("-").map(String)
+                const label = day;
+                //console.log(label)
                 const currentSum = chartData[label] || 0;
                 const price = Number(appt.service?.price || 0);
                 chartData[label] = Number((currentSum + price).toFixed(2));
