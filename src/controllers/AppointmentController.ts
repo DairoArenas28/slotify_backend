@@ -36,20 +36,31 @@ export class AppointmentController {
 
     static getUserAll = async (req: Request, res: Response) => {
         try {
+            const limit = parseInt(req.query.limit as string) || 10
+            const page = parseInt(req.query.page as string) || 1
+            const offset = (page - 1) * limit
+
             let whereOptions = undefined
             if(req.user.role === "client"){
                 whereOptions = { userId: req.user.id };
             }
-            const appointment = await Appointment.findAll({
+            const appointment = await Appointment.findAndCountAll({
                 order: [
                     ['createdAt', 'DESC']
                 ],
                 where: whereOptions,
-                include: [Service]
+                include: [Service],
+                limit,
+                offset
             })
-            //console.log(appointment)
+            console.log(appointment)
 
-            res.json(appointment)
+            res.json({
+                total: appointment.count,
+                page,
+                totalPages: Math.ceil(appointment.count / limit),
+                data: appointment.rows 
+            })
         } catch (error) {
             res.status(500).json({ error: error.message })
         }
