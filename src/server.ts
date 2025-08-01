@@ -5,6 +5,7 @@ import { db } from './config/db'
 import adminRouter from './routes/adminRouter'
 import appointmentRouter from './routes/appointmentRouter'
 import serviceRouter from './routes/serviceRouter'
+import userRouter from './routes/userRouter'
 
 async function ConnectDB() {
     try {
@@ -26,5 +27,6 @@ app.use('/api/admin', adminRouter )
 app.use('/api/auth', authRouter)
 app.use('/api/appointment', appointmentRouter)
 app.use('/api/services', serviceRouter)
+app.use('/api/user', userRouter)
 
 export default app

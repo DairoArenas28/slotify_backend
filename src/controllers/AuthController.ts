@@ -88,7 +88,7 @@ export class AuthController {
             return
         }
 
-        const token = generateJWT(user.id)
+        const token = generateJWT(user.id, user.role)
 
         res.json(token)
     }
