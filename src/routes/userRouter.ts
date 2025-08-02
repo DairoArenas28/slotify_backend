@@ -11,6 +11,9 @@ router.use(authenticate)
 router.get('/', 
     UserController.getAll
 )
+router.get('/paginationAll', 
+    UserController.getPaginationAll
+)
 router.post('/', 
     body('name').notEmpty().withMessage('El nombre no puede ir vacio'),
     handleInputErrors,

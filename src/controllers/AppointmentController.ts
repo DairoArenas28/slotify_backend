@@ -53,7 +53,6 @@ export class AppointmentController {
                 limit,
                 offset
             })
-            console.log(appointment)
 
             res.json({
                 total: appointment.count,
