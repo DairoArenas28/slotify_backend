@@ -27,7 +27,6 @@ export class ServiceController {
     static create = async (req: Request, res: Response) => {
         try {
             const service = await Service.create(req.body)
-            await service.save()
             res.status(201).json('Servicio creado correctamente')
         } catch (error) {
             res.status(500).json({error: 'Hubo un error'})       
