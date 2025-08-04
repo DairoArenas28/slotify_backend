@@ -48,7 +48,7 @@ class Customer extends Model {
     declare country: string
 
     @Column({
-        type: DataType.DATE()
+        type: DataType.DATEONLY()
     })
     declare birth_date: Date
 

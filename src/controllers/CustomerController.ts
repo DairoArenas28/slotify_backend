@@ -9,10 +9,12 @@ export class CustomerController {
 
     static create = async (req: Request, res: Response) => {
         try {
+            console.log(req.body)
             const customer = await Customer.create(req.body)
+            await customer.save()
             res.status(201).json('Cliente creado correctamente')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'}) 
+            res.status(500).json({error: error.message}) 
         }
     }
 }
