@@ -3,8 +3,9 @@ import Customer from "../models/Customer"
 
 export class CustomerController {
 
-    static getAll = (req: Request, res: Response) => {
-
+    static getAll = async (req: Request, res: Response) => {
+        const customers = await Customer.findAll()
+        res.status(201).json(customers)
     }
 
     static create = async (req: Request, res: Response) => {

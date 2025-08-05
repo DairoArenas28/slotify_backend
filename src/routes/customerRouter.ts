@@ -6,6 +6,11 @@ import { body } from "express-validator"
 
 const router = Router()
 
+router.get('/', 
+    handleInputErrors,
+    CustomerController.getAll
+)
+
 router.post('/', 
     body('first_name').notEmpty().withMessage('El nombre no puede ir vacio'),
     handleInputErrors,

@@ -1,4 +1,5 @@
-import { Column, DataType, Model, Table } from "sequelize-typescript";
+import dayjs from "dayjs";
+import { AllowNull, Column, DataType, Model, Table } from "sequelize-typescript";
 
 
 @Table({
@@ -47,8 +48,9 @@ class Customer extends Model {
     })
     declare country: string
 
+    @AllowNull(true)
     @Column({
-        type: DataType.DATEONLY()
+        type: DataType.DATEONLY
     })
     declare birth_date: Date
 
