@@ -30,10 +30,19 @@ export class CustomerController {
                 total: user.count,
                 page,
                 totalPages: Math.ceil(user.count / limit),
-                data: user.rows 
+                data: user.rows
             })
         } catch (error) {
             res.status(500).json({ error: error.message })
+        }
+    }
+
+    static getById = async (req: Request, res: Response) => {
+        try {
+            const customer = await Customer.findByPk(req.customer.id)
+            res.status(200).json(customer)
+        } catch (error) {
+            res.status(500).json({ error: error });
         }
     }
 
@@ -44,7 +53,26 @@ export class CustomerController {
             await customer.save()
             res.status(201).json('Cliente creado correctamente')
         } catch (error) {
-            res.status(500).json({error: error.message}) 
+            if (error.name === 'SequelizeUniqueConstraintError') {
+                res.status(500).json({ error: "La cédula ya está registrada" });
+            } else {
+                res.status(500).json({ error: error });
+            }
+
+        }
+    }
+
+    static updateById = async (req: Request, res: Response) => {
+        try {
+            await req.customer.update(req.body)
+            res.json('Cliente actualizado correctamente')
+
+        } catch (error) {
+            if (error.name === 'SequelizeUniqueConstraintError') {
+                res.status(500).json({ error: "La cédula ya está registrada" });
+            } else {
+                res.status(500).json({ error: error });
+            }
         }
     }
 }

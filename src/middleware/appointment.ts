@@ -34,7 +34,6 @@ export const validateAppointmentDate = async (req: Request, res: Response, next:
     next()
 }
 
-//validar si un servicio existe al momento de pasar el parametro a la API
 export const validateAppointmentExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { appointmentId } = req.params

@@ -34,7 +34,9 @@ class Customer extends Model {
     declare document_type: number
 
     @Column({
-        type: DataType.STRING()
+        type: DataType.STRING(),
+        allowNull: false,
+        unique: true,
     })
     declare document_number: string
 
